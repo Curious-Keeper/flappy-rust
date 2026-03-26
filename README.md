@@ -2,6 +2,8 @@
 
 A small desktop Flappy Bird–style endless runner written in Rust with [Macroquad](https://github.com/not-fl3/macroquad).
 
+<img width="617" height="840" alt="Screenshot_2026-03-26_16-43-24" src="https://github.com/user-attachments/assets/3d229549-2e70-4ea8-a97a-1a7beed8bb4c" />
+
 ## Run
 
 From this directory:
