@@ -1,7 +1,5 @@
 mod save;
 
-use std::time::{SystemTime, UNIX_EPOCH};
-
 use macroquad::prelude::*;
 use save::{load as load_save, save as save_to_disk, SaveData};
 
@@ -494,10 +492,7 @@ fn flap_pressed() -> bool {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let seed = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|d| d.as_nanos() as u64)
-        .unwrap_or(1);
+    let seed = (macroquad::miniquad::date::now() * 1_000_000.0) as u64;
     rand::srand(seed);
 
     let art = try_load_art().await;
