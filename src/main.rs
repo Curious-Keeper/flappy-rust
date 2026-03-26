@@ -540,7 +540,9 @@ fn window_conf() -> Conf {
         window_title: "Flappy Rust".to_string(),
         window_width: 480,
         window_height: 800,
-        window_resizable: true,
+        // WASM: resizable windows + synchronous resize JS can re-enter miniquad's frame()
+        // handler and panic (RefCell already borrowed). Desktop keeps resizing.
+        window_resizable: !cfg!(target_arch = "wasm32"),
         ..Default::default()
     }
 }
