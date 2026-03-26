@@ -16,7 +16,7 @@ mod native {
     const SAVE_DIR: &str = "flappy_rust";
     const SAVE_FILE: &str = "highscore.json";
 
-    pub fn save_path() -> Option<PathBuf> {
+    fn save_path() -> Option<PathBuf> {
         let base = dirs::data_local_dir()?.join(SAVE_DIR);
         Some(base.join(SAVE_FILE))
     }
@@ -47,37 +47,28 @@ mod native {
     }
 }
 
+// Web: implemented in web/storage_plugin.js via miniquad_add_plugin (not wasm-bindgen).
+#[cfg(target_arch = "wasm32")]
+extern "C" {
+    fn flappy_storage_load() -> i32;
+    fn flappy_storage_save(score: i32);
+}
+
 #[cfg(target_arch = "wasm32")]
 mod wasm {
     use std::io;
 
     use super::SaveData;
 
-    const LS_KEY: &str = "flappy_rust_high_score";
-
     pub fn load() -> SaveData {
-        let high_score = web_sys::window()
-            .and_then(|w| w.local_storage().ok())
-            .flatten()
-            .and_then(|s| s.get_item(LS_KEY).ok().flatten())
-            .and_then(|v| v.parse().ok())
-            .unwrap_or(0);
+        let v = unsafe { super::flappy_storage_load() };
+        let high_score = if v < 0 { 0 } else { v as u32 };
         SaveData { high_score }
     }
 
     pub fn save(data: &SaveData) -> io::Result<()> {
-        let Some(win) = web_sys::window() else {
-            return Err(io::Error::new(io::ErrorKind::Other, "no window"));
-        };
-        let Some(storage) = win
-            .local_storage()
-            .map_err(|_| io::Error::new(io::ErrorKind::Other, "localStorage"))?
-        else {
-            return Err(io::Error::new(io::ErrorKind::Other, "no storage"));
-        };
-        storage
-            .set_item(LS_KEY, &data.high_score.to_string())
-            .map_err(|_| io::Error::new(io::ErrorKind::Other, "set_item"))?;
+        let score = i32::try_from(data.high_score).unwrap_or(i32::MAX);
+        unsafe { super::flappy_storage_save(score) };
         Ok(())
     }
 }

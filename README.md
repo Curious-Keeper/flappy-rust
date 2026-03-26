@@ -53,18 +53,18 @@ The workflow [.github/workflows/pages.yml](.github/workflows/pages.yml) builds *
    `https://<user>.github.io/<repo>/`  
    (for example `https://curious-keeper.github.io/flappy-rust/`).
 
-**High score in the browser** is stored in **`localStorage`** (key `flappy_rust_high_score`), not in a JSON file.
+**High score in the browser** uses **`localStorage`** via [`web/storage_plugin.js`](web/storage_plugin.js) and Miniquad’s `miniquad_add_plugin` API. Do **not** use `web-sys` / **wasm-bindgen** for saves: Macroquad’s loader (`mq_js_bundle.js`) is not compatible with wasm-bindgen imports (black screen / instantiate errors).
 
-**Try WASM locally** (needs any static server in the folder that contains `index.html`, the `.wasm`, and `assets/`):
+**Try WASM locally** (static server; same folder must include `storage_plugin.js`):
 
 ```bash
 rustup target add wasm32-unknown-unknown
 cargo build --release --target wasm32-unknown-unknown
 
-
 mkdir -p site
 cp target/wasm32-unknown-unknown/release/flappy_rust.wasm site/
 cp web/index.html site/
+cp web/storage_plugin.js site/
 cp -r assets site/
 cd site && python -m http.server 8080
 ```
