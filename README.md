@@ -64,6 +64,7 @@ cargo build --release --target wasm32-unknown-unknown
 mkdir -p site
 cp target/wasm32-unknown-unknown/release/flappy_rust.wasm site/
 cp web/index.html site/
+cp web/mq_js_bundle.js site/
 cp web/storage_plugin.js site/
 cp -r assets site/
 cd site && python -m http.server 8080
