@@ -39,3 +39,32 @@ If you hit permission errors when running `cargo build` (for example on a shared
 mkdir -p .cargo_home
 CARGO_HOME=$PWD/.cargo_home cargo build --release
 ```
+
+## Web (WASM) and GitHub Pages
+
+The workflow [.github/workflows/pages.yml](.github/workflows/pages.yml) builds **`wasm32-unknown-unknown`**, copies [`web/index.html`](web/index.html), `flappy_rust.wasm`, and **`assets/`** into a static site, and deploys it with **GitHub Actions → Pages**.
+
+**One-time repo setup**
+
+1. On GitHub: **Settings → Pages → Build and deployment → Source:** choose **GitHub Actions** (not “Deploy from a branch”).
+2. Push to **`main`**; check **Actions** for the “Deploy Pages” run. The site URL will be  
+   `https://<user>.github.io/<repo>/`  
+   (for example `https://curious-keeper.github.io/flappy-rust/`).
+
+**High score in the browser** is stored in **`localStorage`** (key `flappy_rust_high_score`), not in a JSON file.
+
+**Try WASM locally** (needs any static server in the folder that contains `index.html`, the `.wasm`, and `assets/`):
+
+```bash
+rustup target add wasm32-unknown-unknown
+cargo build --release --target wasm32-unknown-unknown
+
+
+mkdir -p site
+cp target/wasm32-unknown-unknown/release/flappy_rust.wasm site/
+cp web/index.html site/
+cp -r assets site/
+cd site && python -m http.server 8080
+```
+
+Open `http://localhost:8080/`. See also [Macroquad WASM notes](https://github.com/not-fl3/macroquad#wasm).
